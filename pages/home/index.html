@@ -52,5 +52,13 @@
         usersCount.innerText = count;
     })
 </script>
+<script>
+    async function getPosts() {
+        const data = await fetch('/getposts')
+            .then((data) => data.json());
+        console.dir(data);
+    }
+    getPosts();
+</script>
 </body>
 </html>

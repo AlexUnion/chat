@@ -1,21 +1,15 @@
 const express = require('express');
 const http = require('http');
 const mysql = require('mysql2');
-const path = require('path');
 const socket = require('socket.io');
+const { connectToDB, connection } = require('./tool/database');
 
 const hostname = '192.168.0.100';
 const port = 3000;
 
 let usersCountOnline = 0;
 
-//configure connection to DB
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    database: 'users',
-    password: '',
-})
+const mainRouter = require('./routers/main');
 
 const app = express();
 
@@ -24,10 +18,7 @@ const io = socket(server);
 
 //configure public folder
 app.use('/public', express.static(__dirname + '/public'));
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'pages/home/', 'index.html'));
-})
+app.use('/', mainRouter);
 
 io.on('connection', (socket) => {
 
@@ -45,22 +36,6 @@ io.on('connection', (socket) => {
         io.emit('Users count', --usersCountOnline);
     });
 })
-
-function connectToDB() {
-    connection.connect(function(err){
-        if (err) {
-            return console.error("Ошибка: " + err.message);
-        }
-        else{
-            console.log("Подключение к серверу MySQL успешно установлено");
-        }
-    });
-}
-
-function disconnectDB() {
-    console.log('MySQL: Disconnecting');
-    connection.end();
-}
 
 /*
 const server = http.createServer((req, res) => {
@@ -83,5 +58,6 @@ server.listen(port, hostname, () => {
 });
 */
 server.listen(port, hostname, () => {
+    connectToDB(connection);
     console.log(`Server running at http://${hostname}:${port}/`);
 })
