@@ -7,12 +7,34 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Home page</title>
     <link rel="stylesheet" href="public/style.css">
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 <h1>Chat page</h1>
 <ul id="messages"></ul>
-<form action="">
-    <input id="m" autocomplete="off" /><button>Send</button>
+<form action="" id="form">
+    <label for="input">
+        <input id="input" autocomplete="off"/>
+    </label>
+    <button type="submit">Send</button>
 </form>
+<script>
+    const socket = io();
+
+    const form  = document.getElementById('form');
+    const input = document.getElementById('input');
+    const messages = document.getElementById('messages');
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        socket.emit('chat', input.value);
+        input.value = '';
+        return false;
+    })
+
+    socket.on('chat', (message) => {
+        messages.insertAdjacentHTML('beforeend', `<li>${message}</li>`);
+    })
+</script>
 </body>
 </html>

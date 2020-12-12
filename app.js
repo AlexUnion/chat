@@ -2,23 +2,42 @@ const express = require('express');
 const http = require('http');
 const mysql = require('mysql2');
 const path = require('path');
+const socket = require('socket.io');
 
 const hostname = '192.168.0.100';
 const port = 3000;
 
+//configure connection to DB
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    database: 'users',
+    password: '',
+})
+
 const app = express();
+
+const server = http.createServer(app);
+const io = socket(server);
+
+//configure public folder
 app.use('/public', express.static(__dirname + '/public'));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages/home/', 'index.html'));
 })
 
-//connection config
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    database: 'users',
-    password: '',
+io.on('connection', (socket) => {
+    console.log('user connected');
+    socket.on('chat', (message) => {
+        const str = message.trim();
+        if (str) {
+            io.emit('chat', message);
+        }
+    })
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+    });
 })
 
 function connectToDB() {
@@ -57,7 +76,6 @@ server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
 });
 */
-const server = http.createServer(app)
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
 })
