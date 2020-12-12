@@ -1,6 +1,5 @@
 const express = require('express');
 const http = require('http');
-const mysql = require('mysql2');
 const socket = require('socket.io');
 const { connectToDB, connection } = require('./tool/database');
 
@@ -28,7 +27,9 @@ io.on('connection', (socket) => {
     socket.on('chat', ({user, text}) => {
         const str = text.trim();
         if (str) {
-            io.emit('chat', `${user}: ${text}`);
+            const query = `insert into users (name, text) values ('${user}', '${text}')`;
+            connection.query(query);
+            io.emit('chat', {name: user, text});
         }
     })
     socket.on('disconnect', () => {

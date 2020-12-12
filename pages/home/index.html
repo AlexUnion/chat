@@ -45,18 +45,23 @@
         return false;
     })
 
-    socket.on('chat', (message) => {
-        messages.insertAdjacentHTML('beforeend', `<li>${message}</li>`);
+    function insertNewMessage({name, text}) {
+        messages.insertAdjacentHTML('beforeend', `<li>${name}: ${text}</li>`);
+    }
+
+    socket.on('chat', (mess) => {
+        insertNewMessage(mess);
     });
     socket.on('Users count', (count) => {
         usersCount.innerText = count;
     })
-</script>
-<script>
+
     async function getPosts() {
         const data = await fetch('/getposts')
             .then((data) => data.json());
-        console.dir(data);
+        data.forEach((mess) => {
+            insertNewMessage(mess);
+        })
     }
     getPosts();
 </script>
