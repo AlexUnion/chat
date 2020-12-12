@@ -1,8 +1,17 @@
+const express = require('express');
 const http = require('http');
 const mysql = require('mysql2');
+const path = require('path');
 
 const hostname = '192.168.0.100';
 const port = 3000;
+
+const app = express();
+app.use('/public', express.static(__dirname + '/public'));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages/home/', 'index.html'));
+})
 
 //connection config
 const connection = mysql.createConnection({
@@ -28,6 +37,7 @@ function disconnectDB() {
     connection.end();
 }
 
+/*
 const server = http.createServer((req, res) => {
     connectToDB();
     connection.query('SELECT * from users', ((err, result, fields) => {
@@ -46,3 +56,8 @@ const server = http.createServer((req, res) => {
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
 });
+*/
+const server = http.createServer(app)
+server.listen(port, hostname, () => {
+    console.log(`Server running at http://${hostname}:${port}/`);
+})
