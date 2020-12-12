@@ -7,6 +7,8 @@ const socket = require('socket.io');
 const hostname = '192.168.0.100';
 const port = 3000;
 
+let usersCountOnline = 0;
+
 //configure connection to DB
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -28,15 +30,19 @@ app.get('/', (req, res) => {
 })
 
 io.on('connection', (socket) => {
+
     console.log('user connected');
-    socket.on('chat', (message) => {
-        const str = message.trim();
+    io.emit('Users count', ++usersCountOnline);
+
+    socket.on('chat', ({user, text}) => {
+        const str = text.trim();
         if (str) {
-            io.emit('chat', message);
+            io.emit('chat', `${user}: ${text}`);
         }
     })
     socket.on('disconnect', () => {
         console.log('user disconnected');
+        io.emit('Users count', --usersCountOnline);
     });
 })
 

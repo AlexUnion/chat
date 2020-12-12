@@ -11,10 +11,11 @@
 </head>
 <body>
 <h1>Chat page</h1>
+<h2>Users online: <span id="counter">1</span></h2>
 <ul id="messages"></ul>
 <form action="" id="form">
     <label for="input">
-        <input id="input" autocomplete="off"/>
+        <input id="input" autocomplete="off" placeholder="Input your message here"/>
     </label>
     <button type="submit">Send</button>
 </form>
@@ -24,16 +25,31 @@
     const form  = document.getElementById('form');
     const input = document.getElementById('input');
     const messages = document.getElementById('messages');
+    const usersCount = document.getElementById('counter');
+
+    const tempName = `User ${getRandomInt(100)}`
+    const name = prompt('Как вас зовут?', tempName);
+
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+    }
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
-        socket.emit('chat', input.value);
+        const mess = {
+            user: name,
+            text: input.value + '',
+        }
+        socket.emit('chat', mess);
         input.value = '';
         return false;
     })
 
     socket.on('chat', (message) => {
         messages.insertAdjacentHTML('beforeend', `<li>${message}</li>`);
+    });
+    socket.on('Users count', (count) => {
+        usersCount.innerText = count;
     })
 </script>
 </body>
